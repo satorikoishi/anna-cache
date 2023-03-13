@@ -169,8 +169,11 @@ void run(KvsClientInterface *client, Address ip, unsigned thread_id) {
   while (true) {
     kZmqUtil->poll(0, &pollitems);
 
+    log->info("Polled an item");
+
     // handle a GET request
     if (pollitems[0].revents & ZMQ_POLLIN) {
+      log->info("A Get Request");
       string serialized = kZmqUtil->recv_string(&get_puller);
       KeyRequest request;
       request.ParseFromString(serialized);
@@ -182,6 +185,8 @@ void run(KvsClientInterface *client, Address ip, unsigned thread_id) {
       for (KeyTuple tuple : request.tuples()) {
         Key key = tuple.key();
         read_set.insert(key);
+
+        log->info("Get request key {}", key);
 
         if (key_type_map.find(key) == key_type_map.end()) {
           // this means key dne in cache
@@ -209,6 +214,7 @@ void run(KvsClientInterface *client, Address ip, unsigned thread_id) {
 
     // handle a PUT request
     if (pollitems[1].revents & ZMQ_POLLIN) {
+      log->info("A Put Request");
       string serialized = kZmqUtil->recv_string(&put_puller);
       KeyRequest request;
       request.ParseFromString(serialized);
@@ -218,6 +224,7 @@ void run(KvsClientInterface *client, Address ip, unsigned thread_id) {
       for (KeyTuple tuple : request.tuples()) {
         // this loop checks if any key has invalid lattice type
         Key key = tuple.key();
+        log->info("Put request key {}", key);
 
         if (tuple.lattice_type() == LatticeType::NONE) {
           log->error("The cache requires the lattice type to PUT key.");
@@ -264,12 +271,14 @@ void run(KvsClientInterface *client, Address ip, unsigned thread_id) {
 
     // handle updates received from the KVS
     if (pollitems[2].revents & ZMQ_POLLIN) {
+      log->info("An Update Request");
       string serialized = kZmqUtil->recv_string(&update_puller);
       KeyRequest updates;
       updates.ParseFromString(serialized);
 
       for (const KeyTuple &tuple : updates.tuples()) {
         Key key = tuple.key();
+        log->info("Update request key {}", key);
 
         // if we are no longer caching this key, then we simply ignore updates
         // for it because we received the update based on outdated information
@@ -315,6 +324,7 @@ void run(KvsClientInterface *client, Address ip, unsigned thread_id) {
     vector<KeyResponse> responses = client->receive_async();
     for (const auto &response : responses) {
       Key key = response.tuples(0).key();
+      log->info("Got response from Anna, key {}", key);
 
       if (response.error() == AnnaError::TIMEOUT) {
         log->info("Request for key {} timed out.", key);
