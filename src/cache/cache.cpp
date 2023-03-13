@@ -37,7 +37,7 @@ string get_serialized_value_from_cache(
     logger log) {
   if (type == LatticeType::LWW) {
     if (local_lww_cache.find(key) != local_lww_cache.end()) {
-      string value = local_lww_cache.at(key).reveal().value();
+      string value = local_lww_cache.at(key).reveal().value;
       log->info("LWW cache get key: {}", key);
       log->info("LWW cache get value: {}", value);
       return serialize(local_lww_cache.at(key));
