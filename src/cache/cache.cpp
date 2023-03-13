@@ -169,7 +169,7 @@ void run(KvsClientInterface *client, Address ip, unsigned thread_id) {
   while (true) {
     kZmqUtil->poll(0, &pollitems);
 
-    log->info("Polled an item");
+    // log->info("Polled an item");
 
     // handle a GET request
     if (pollitems[0].revents & ZMQ_POLLIN) {
