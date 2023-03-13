@@ -37,7 +37,9 @@ string get_serialized_value_from_cache(
     logger log) {
   if (type == LatticeType::LWW) {
     if (local_lww_cache.find(key) != local_lww_cache.end()) {
-      log->info("LWW cache get key: {}, value: {}", key, local_lww_cache.at(key).reveal());
+      string value = local_lww_cache.at(key).reveal();
+      log->info("LWW cache get key: {}", key);
+      log->info("LWW cache get value: {}", value);
       return serialize(local_lww_cache.at(key));
     } else {
       log->error("Key {} not found in LWW cache.", key);
@@ -45,7 +47,9 @@ string get_serialized_value_from_cache(
     }
   } else if (type == LatticeType::SET) {
     if (local_set_cache.find(key) != local_set_cache.end()) {
-      log->info("Set cache get key: {}, value: {}", key, local_set_cache.at(key).reveal());
+      string value = local_set_cache.at(key).reveal();
+      log->info("Set cache get key: {}", key);
+      log->info("Set cache get value: {}", value);      
       return serialize(local_set_cache.at(key));
     } else {
       log->error("Key {} not found in SET cache.", key);
@@ -53,7 +57,9 @@ string get_serialized_value_from_cache(
     }
   } else if (type == LatticeType::ORDERED_SET) {
     if (local_ordered_set_cache.find(key) != local_ordered_set_cache.end()) {
-      log->info("Ordered set cache get key: {}, value: {}", key, local_ordered_set_cache.at(key).reveal());
+      string value = local_ordered_set_cache.at(key).reveal();
+      log->info("Ordered set cache get key: {}", key);
+      log->info("Ordered set cache get value: {}", value);
       return serialize(local_ordered_set_cache.at(key));
     } else {
       log->error("Key {} not found in ORDERED_SET cache.", key);
